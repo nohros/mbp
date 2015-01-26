@@ -22,3 +22,7 @@ Finally, open `file:///path/to/m-boilerplate/build/index.html` in your browser.
 Happy hacking!
 
 ## Purpose
+
+`m-boilerplate` is designed to make life easy by providing a basic framework with which to kickstart mithril projects. It contains a best-practice directory structure to ensure code reusability and maximum scalability. m-boilerplate also comes prepackaged with the most popular design frameworks around: [Mithril](http://lhorie.github.io/mithril) and [SASS](http://sass-lang.com/). Lastly, it contains a sophisticated [Grunt](http://gruntjs.org)-based build system to ensure maximum productivity. All you need to do is clone it and start coding!
+
+## Philosophy
