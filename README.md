@@ -1,4 +1,4 @@
-# m-boilerplate (http://nohros.com/m-boilerplate)
+# [m-boilerplate](http://nohros.com/m-boilerplate)
 
 A simple build management system for web apps that uses the Mithril(http://lhorie.github.io/mithril) framework.
 
