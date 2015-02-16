@@ -1,0 +1,7 @@
+{
+  "name": "m-boilerplate",
+  "version": "0.1.0",
+  "devDependencies": {
+    "mithril": "~0.1.0"
+  }
+}
