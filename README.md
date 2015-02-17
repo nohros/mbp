@@ -6,13 +6,13 @@ A simple build management system for web apps that uses the Mithril(http://lhori
 
 ## Quick Start
 
-Install Node.js and then:
+Install node.js and then:
 
 ```sh
 $ git clone git://github.com/nohros/m-boilerplate
 cd m-boilerplate
-sudo npm -g install grunt-cli karma bower
-nom install
+sudo npm -g install gulp karma bower
+npm install
 bower install
 grunt watch
 ```
@@ -23,6 +23,6 @@ Happy hacking!
 
 ## Purpose
 
-`m-boilerplate` is designed to make life easy by providing a basic framework with which to kickstart mithril projects. It contains a best-practice directory structure to ensure code reusability and maximum scalability. m-boilerplate also comes prepackaged with the most popular design frameworks around: [Mithril](http://lhorie.github.io/mithril) and [SASS](http://sass-lang.com/). Lastly, it contains a sophisticated [Grunt](http://gruntjs.org)-based build system to ensure maximum productivity. All you need to do is clone it and start coding!
+`m-boilerplate` is designed to make life easy by providing a basic framework with which to kickstart mithril projects. It contains a best-practice directory structure to ensure code reusability and maximum scalability. m-boilerplate also comes prepackaged with the most popular design frameworks around: [Mithril](http://lhorie.github.io/mithril) and [SASS](http://sass-lang.com/). Lastly, it contains a sophisticated [Gulp](http://gulpjs.cpm) based build system to ensure maximum productivity. All you need to do is clone it and start coding!
 
 ## Philosophy
