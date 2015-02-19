@@ -1,6 +1,18 @@
 {
   "name": "m-boilerplate",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "homepage": "https://github.com/nohros/m-boilerplate",
+  "authors": [
+    "Neylor Ohmaly"
+  ],
+  "license": "MIT",
+  "ignore" : [
+    "**/.*",
+    "build",
+    "bin",
+    "node_modules",
+    "vendor"
+  ],
   "devDependencies": {
     "mithril": "~0.1.0"
   }

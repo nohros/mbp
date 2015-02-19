@@ -12,6 +12,8 @@ module.exports = {
    */
   compile_dir: 'bin',
   
+  assets_dir: 'assets',
+  
   app_files: {
     js: ['src/**/*.js', '!src/**/*.spec.js', '!src/assets/**/*.js']
   },
