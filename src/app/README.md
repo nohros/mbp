@@ -19,4 +19,4 @@ As `m-boilerplate` is quite minimal, take a look at the two provided submodules 
 
 ## Testing
 
-ne of the design philosophies of `m-boilerplate` is that tests should exist alongside the code they test and that the build system should be smart enough to know the difference and react accordingly. As such, the unit test for `app.js` is `app.spec.js`, though it is quite minimal.
+One of the design philosophies of `m-boilerplate` is that tests should exist alongside the code they test and that the build system should be smart enough to know the difference and react accordingly. As such, the unit test for `app.js` is `app.spec.js`, though it is quite minimal.

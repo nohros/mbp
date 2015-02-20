@@ -17,6 +17,7 @@ var bump = require("gulp-bump");
 var moment = require("moment");
 var header = require("gulp-header");
 var tap = require("gulp-tap");
+var template = require("gulp-template");
 
 //var jshint = require("gulp-jshint");
 //var watch = require("gulp-watch");
@@ -109,8 +110,7 @@ gulp.task('concat:css', function () {
 });
 
 /**
- * Concatenates multiple js files into a single js file and minifies it
- * we are compiling.
+ * Concatenates multiple js files into a single js file and minifies it.
  */
 gulp.task('concat:js', function () {
   var src = cfg.vendor_files.js.concat([
@@ -138,7 +138,7 @@ gulp.task('uglify', function () {
  * compilation, concatenation, minification, etc. So to avoid this steps,
  * we simply add all scripts files directly to the `<head>` of `index.html`.
  */
-gulp.task('index:build', function () {
+gulp.task('index', function () {
   var files = cfg.vendor_files.js.concat([
     path.join(cfg.build_dir, 'src', '**', '*.js'),
     path.join(cfg.build_dir, 'assets', asset_suffix + '.css')
@@ -154,6 +154,19 @@ gulp.task('index:build', function () {
     }));
 });
 
-gulp.task('default', ['clean', 'index:build'], function () {
-  console.log(scripts);
+gulp.task('index:build', ['index'], function () {
+  var m = {pkg : pkg, scripts : scripts, styles : styles};
+  gulp.src(path.join("src", "index.html"))
+    .pipe(template(m))
+    .pipe(gulp.dest(path.join(cfg.build_dir, "index.html")));
 });
+
+gulp.task('build', [
+  'clean', 'concat:build_css', 'copy:build_app_assets',
+  'copy:build_vendor_assets', 'copy:build_appjs', 'copy:build_vendorjs',
+  'copy:build_vendorcss', 'index:build']);
+
+gulp.task('compile', [
+  'copy:compile_assets', 'concat:js', 'index:compile']);
+
+gulp.task('default', ['build', 'compile']);
