@@ -155,10 +155,16 @@ gulp.task('index', function () {
 });
 
 gulp.task('index:build', ['index'], function () {
-  var m = {pkg : pkg, scripts : scripts, styles : styles};
+  var m = {
+    pkg : pkg,
+    scripts : Object.keys(scripts),
+    styles : Object.keys(styles)
+  };
+  
   gulp.src(path.join("src", "index.html"))
+    .pipe(gutil.buffer(function (err, file) { }));
     .pipe(template(m))
-    .pipe(gulp.dest(path.join(cfg.build_dir, "index.html")));
+    .pipe(gulp.dest(cfg.build_dir));
 });
 
 gulp.task('build', [
