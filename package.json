@@ -5,6 +5,7 @@
   "description": "A simple build management system for Mithril.",
   "license": "MIT",
   "bugs": "https://github.com/nohros/m-boilerplate/issues",
+  "homepage" : "http://nohros.com/m-boilerplate",
   "repository": {
     "type": "git",
     "url": "git@github.com:nohros/m-boilerplate.git"

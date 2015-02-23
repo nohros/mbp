@@ -34,11 +34,13 @@ var today = moment();
 
 var banner =
   '/**\n' +
-  ' * <%= pkg.name %> - v<%= pkg.version %> - <%= today.format("yyyy-mm-dd") %>)\n' +
+  ' * <%= pkg.name %> v<%= pkg.version %>\n' +
   ' * <%= pkg.homepage %>\n' +
   ' * \n' +
-  ' * Copyright (c) <%= today.format("yyyy") %> <%= pkg.author %>\n' +
-  ' * Licensed <%= pkg.license %>\n' +
+  ' * Copyright (c) <%= today.format("YYYY") %> <%= pkg.author %>\n' +
+  ' * Licensed under the <%= pkg.license %> license\n' +
+  ' * \n' +
+  ' * Date: <%= today.format("YYYY-MM-DD") %>\n' +
   ' */\n';
 
 var asset_suffix = path.join(cfg.assets_dir, pkg.name + '-' + pkg.version);
@@ -68,33 +70,39 @@ gulp.task('clean', function () {
  * `build-dir`, and then to copy the assets to `compile_dir`.
  */
 gulp.task('copy:build_app_assets', function () {
-  gulp.src(path.join('.', 'src', cfg.assets_dir, '**'))
+  return gulp.src([path.join('src', cfg.assets_dir, '**')])
+    .pipe(tap(function(file) {
+      file.path = path.basename(file.path);
+    }))
     .pipe(copy(path.join(cfg.build_dir, cfg.assets_dir)));
 });
 
 gulp.task('copy:build_vendor_assets', function () {
-  gulp.src(cfg.vendor_files.assets)
+  return gulp.src(cfg.vendor_files.assets)
     .pipe(copy(path.join(cfg.build_dir, cfg.assets_dir)));
 });
 
 gulp.task('copy:build_appjs', function () {
-  gulp.src(cfg.app_files.js)
+  return gulp.src(cfg.app_files.js)
     .pipe(copy(cfg.build_dir));
 });
 
 gulp.task('copy:build_vendorjs', function () {
-  gulp.src(cfg.vendor_files.js)
+  return gulp.src(cfg.vendor_files.js)
     .pipe(copy(cfg.build_dir));
 });
 
 gulp.task('copy:build_vendorcss', function () {
-  gulp.src(cfg.vendor_files.css)
+  return gulp.src(cfg.vendor_files.css)
     .pipe(copy(cfg.build_dir));
 });
 
 gulp.task('copy:compile_assets', function () {
   gulp.src(path.join(cfg.build_dir, cfg.assets_dir, '**'))
-    .pipe(copy(cfg.compile_dir + cfg.assets_dir));
+    .pipe(tap(function(file) {
+      file.path = path.basename(file.path);
+    }))
+    .pipe(copy(path.join(cfg.compile_dir, cfg.assets_dir)));
   
   gulp.src(cfg.vendor_files.css)
     .pipe(copy(cfg.compile_dir));
@@ -105,7 +113,7 @@ gulp.task('copy:compile_assets', function () {
  * we are compiling it.
  */
 gulp.task('concat:css', function () {
-  gulp.src(cfg.vendor_files.css)
+  return gulp.src(cfg.vendor_files.css)
     .pipe(concat(path.join(cfg.build_dir, asset_suffix + '.css')));
 });
 
@@ -114,37 +122,25 @@ gulp.task('concat:css', function () {
  */
 gulp.task('concat:js', function () {
   var src = cfg.vendor_files.js.concat([
-    'module.prefix',
+    path.join('.', 'module.prefix'),
     path.join(cfg.build_dir, 'src', '**', '*.js'),
-    'module.suffix'
+    path.join('.', 'module.suffix')
   ]);
   
-  gulp.src(src)
-    .pipe(header(banner, {pkg : pkg}))
-    .pipe(gulp.dest(path.join(cfg.compile_dir, asset_suffix + '.js')));
+  return gulp.src(src)
+    .pipe(concat(pkg.name + '-' + pkg.version + '.js'))
+    .pipe(uglify())
+    .pipe(header(banner, {pkg : pkg, today: today}))
+    .pipe(gulp.dest(path.join(cfg.compile_dir, cfg.assets_dir)));
 });
 
-/**
- * Minify the compiled sources.
- */
-gulp.task('uglify', function () {
-  gulp.src(path.join(cfg.compile_dir, asset_suffix + '.js'))
-    .pipe(uglify());
-});
-
-/**
- * This task compiles the index.html file as a Gulp Lo-Dash/Underscore
- * template. During development, we don't want to have to wait for
- * compilation, concatenation, minification, etc. So to avoid this steps,
- * we simply add all scripts files directly to the `<head>` of `index.html`.
- */
-gulp.task('index', function () {
+gulp.task('index', ['copy'], function () {
   var files = cfg.vendor_files.js.concat([
     path.join(cfg.build_dir, 'src', '**', '*.js'),
     path.join(cfg.build_dir, 'assets', asset_suffix + '.css')
   ]).concat(cfg.vendor_files.css);
 
-  return gulp.src(files)
+  gulp.src(files)
     .pipe(tap(function (file) {
       if (path.extname(file.path) === '.js') {
         scripts[path.basename(file.path)] = 0;
@@ -154,6 +150,12 @@ gulp.task('index', function () {
     }));
 });
 
+/**
+ * This task compiles the index.html file as a Gulp Lo-Dash/Underscore
+ * template. During development, we don't want to have to wait for
+ * compilation, concatenation, minification, etc. So to avoid this steps,
+ * we simply add all scripts files directly to the `<head>` of `index.html`.
+ */
 gulp.task('index:build', ['index'], function () {
   var m = {
     pkg : pkg,
@@ -162,17 +164,36 @@ gulp.task('index:build', ['index'], function () {
   };
   
   gulp.src(path.join("src", "index.html"))
-    .pipe(gutil.buffer(function (err, file) { }));
     .pipe(template(m))
     .pipe(gulp.dest(cfg.build_dir));
 });
 
-gulp.task('build', [
-  'clean', 'concat:build_css', 'copy:build_app_assets',
+/**
+ * This task compiles the index.html file as a Gulp Lo-Dash/Underscore
+ * template. When its time to have a completely compiled application, we can
+ * alter the above to include only a single javascript file and a single CSS
+ * file. Now we're back!
+ */
+gulp.task('index:compile', ['index', 'concat'], function () {
+  var m = {
+    pkg : pkg,
+    scripts : [asset_suffix + '.js'],
+    styles : []
+  };
+  
+  gulp.src(path.join("src", "index.html"))
+    .pipe(template(m))
+    .pipe(gulp.dest(cfg.compile_dir));
+});
+
+gulp.task('copy', [
+  'clean', 'copy:build_app_assets',
   'copy:build_vendor_assets', 'copy:build_appjs', 'copy:build_vendorjs',
-  'copy:build_vendorcss', 'index:build']);
+  'copy:build_vendorcss']);
 
-gulp.task('compile', [
-  'copy:compile_assets', 'concat:js', 'index:compile']);
+gulp.task('build', ['index:build']);
 
-gulp.task('default', ['build', 'compile']);
+gulp.task('concat', ['build', 'concat:css',
+  'copy:compile_assets', 'concat:js']);
+
+gulp.task('default', ['index:compile']);
