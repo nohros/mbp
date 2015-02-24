@@ -18,6 +18,7 @@ var moment = require("moment");
 var header = require("gulp-header");
 var tap = require("gulp-tap");
 var template = require("gulp-template");
+var sequence = require("run-sequence");
 
 //var jshint = require("gulp-jshint");
 //var watch = require("gulp-watch");
@@ -61,7 +62,7 @@ gulp.task('bump', function () {
  * The directories to delete when `gulp clean` is executed.
  */
 gulp.task('clean', function () {
-  del([cfg.build_dir, cfg.compile_dir]);
+  del.sync([cfg.build_dir, cfg.compile_dir]);
 });
 
 /**
@@ -206,6 +207,10 @@ gulp.task('index:compile', ['index', 'copy:compile', 'concat'], function () {
     .pipe(gulp.dest(cfg.compile_dir));
 });
 
-gulp.task('build', ['clean', 'index:build']);
+gulp.task('build', function () {
+  sequence('clean', ['index:build']);
+});
 
-gulp.task('default', ['clean', 'index:compile']);
+gulp.task('default', function () {
+  sequence('clean', ['index:compile']);
+});
