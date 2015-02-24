@@ -66,53 +66,67 @@ gulp.task('clean', function () {
 
 /**
  * The `copy` tasks just copies files from A to B. We use it here to copy
- * our project assets (images, fontsm etc.) and javascripts into
+ * our project assets (images, fonts, etc.) and javascripts into
  * `build-dir`, and then to copy the assets to `compile_dir`.
  */
-gulp.task('copy:build_app_assets', function () {
+gulp.task('copy:app_assets', function () {
   return gulp.src([path.join('src', cfg.assets_dir, '**')])
-    .pipe(tap(function(file) {
+    .pipe(tap(function (file) {
       file.path = path.basename(file.path);
     }))
     .pipe(copy(path.join(cfg.build_dir, cfg.assets_dir)));
 });
 
-gulp.task('copy:build_vendor_assets', function () {
+gulp.task('copy:vendor_assets', function () {
   return gulp.src(cfg.vendor_files.assets)
     .pipe(copy(path.join(cfg.build_dir, cfg.assets_dir)));
 });
 
-gulp.task('copy:build_appjs', function () {
+gulp.task('copy:appjs', function () {
   return gulp.src(cfg.app_files.js)
     .pipe(copy(cfg.build_dir));
 });
 
-gulp.task('copy:build_vendorjs', function () {
+gulp.task('copy:vendorjs', function () {
   return gulp.src(cfg.vendor_files.js)
     .pipe(copy(cfg.build_dir));
 });
 
-gulp.task('copy:build_vendorcss', function () {
+gulp.task('copy:vendorcss', function () {
   return gulp.src(cfg.vendor_files.css)
     .pipe(copy(cfg.build_dir));
 });
 
-gulp.task('copy:compile_assets', function () {
+/**
+ * Copy the application and vendor assets to the build dir concurrently.
+ */
+gulp.task('copy:assets', ['copy:app_assets', 'copy:vendor_assets']);
+
+/**
+ * Copy the application and vendor assets and application and vendor
+ * javascript and CSS concurrently.
+ */
+gulp.task('copy', [
+  'copy:assets', 'copy:vendorcss', 'copy:appjs', 'copy:vendorjs']);
+
+/**
+ * Copy all the assets from the `build_dir` to the `compile_dir`.
+ */
+gulp.task('copy:compile', ['copy:assets'], function () {
   gulp.src(path.join(cfg.build_dir, cfg.assets_dir, '**'))
-    .pipe(tap(function(file) {
-      file.path = path.basename(file.path);
-    }))
+    //.pipe(tap(function (file) {
+    //  file.path = path.basename(file.path);
+    //}))
     .pipe(copy(path.join(cfg.compile_dir, cfg.assets_dir)));
-  
-  gulp.src(cfg.vendor_files.css)
+
+  return gulp.src(cfg.vendor_files.css)
     .pipe(copy(cfg.compile_dir));
 });
 
 /**
- * Concatenates multiple source files into a single file and minifies it
- * we are compiling it.
+ * Concatenates multiple source files into a single file and minifies it.
  */
-gulp.task('concat:css', function () {
+gulp.task('concat:css', ['copy:vendorcss'], function () {
   return gulp.src(cfg.vendor_files.css)
     .pipe(concat(path.join(cfg.build_dir, asset_suffix + '.css')));
 });
@@ -120,7 +134,7 @@ gulp.task('concat:css', function () {
 /**
  * Concatenates multiple js files into a single js file and minifies it.
  */
-gulp.task('concat:js', function () {
+gulp.task('concat:js', ['copy:appjs', 'copy:vendorjs'], function () {
   var src = cfg.vendor_files.js.concat([
     path.join('.', 'module.prefix'),
     path.join(cfg.build_dir, 'src', '**', '*.js'),
@@ -134,13 +148,19 @@ gulp.task('concat:js', function () {
     .pipe(gulp.dest(path.join(cfg.compile_dir, cfg.assets_dir)));
 });
 
-gulp.task('index', ['copy'], function () {
-  var files = cfg.vendor_files.js.concat([
-    path.join(cfg.build_dir, 'src', '**', '*.js'),
-    path.join(cfg.build_dir, 'assets', asset_suffix + '.css')
-  ]).concat(cfg.vendor_files.css);
+/**
+ * Concatenates and minifies the CSS and javascripts concurrently.
+ */
+gulp.task('concat', ['concat:css', 'concat:js']);
 
-  gulp.src(files)
+gulp.task('index', ['copy'], function () {
+  var files = [
+    path.join(cfg.build_dir, 'vendor', '**', '*.js'),
+    path.join(cfg.build_dir, 'src', '**', '*.js'),
+    path.join(cfg.build_dir, 'vendor', '**', '.css')
+  ];
+
+  return gulp.src(files)
     .pipe(tap(function (file) {
       if (path.extname(file.path) === '.js') {
         scripts[path.basename(file.path)] = 0;
@@ -163,7 +183,7 @@ gulp.task('index:build', ['index'], function () {
     styles : Object.keys(styles)
   };
   
-  gulp.src(path.join("src", "index.html"))
+  return gulp.src(path.join("src", "index.html"))
     .pipe(template(m))
     .pipe(gulp.dest(cfg.build_dir));
 });
@@ -174,26 +194,18 @@ gulp.task('index:build', ['index'], function () {
  * alter the above to include only a single javascript file and a single CSS
  * file. Now we're back!
  */
-gulp.task('index:compile', ['index', 'concat'], function () {
+gulp.task('index:compile', ['index', 'copy:compile', 'concat'], function () {
   var m = {
     pkg : pkg,
     scripts : [asset_suffix + '.js'],
     styles : []
   };
   
-  gulp.src(path.join("src", "index.html"))
+  return gulp.src(path.join("src", "index.html"))
     .pipe(template(m))
     .pipe(gulp.dest(cfg.compile_dir));
 });
 
-gulp.task('copy', [
-  'clean', 'copy:build_app_assets',
-  'copy:build_vendor_assets', 'copy:build_appjs', 'copy:build_vendorjs',
-  'copy:build_vendorcss']);
+gulp.task('build', ['clean', 'index:build']);
 
-gulp.task('build', ['index:build']);
-
-gulp.task('concat', ['build', 'concat:css',
-  'copy:compile_assets', 'concat:js']);
-
-gulp.task('default', ['index:compile']);
+gulp.task('default', ['clean', 'index:compile']);
