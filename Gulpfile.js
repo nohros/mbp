@@ -72,10 +72,7 @@ gulp.task('clean', function () {
  */
 gulp.task('copy:app_assets', function () {
   return gulp.src([path.join('src', cfg.assets_dir, '**')])
-    .pipe(tap(function (file) {
-      file.path = path.basename(file.path);
-    }))
-    .pipe(copy(path.join(cfg.build_dir, cfg.assets_dir)));
+    .pipe(gulp.dest(path.join(cfg.build_dir, cfg.assets_dir)));
 });
 
 gulp.task('copy:vendor_assets', function () {
