@@ -1,28 +1,25 @@
 {
   "author": "Neylor Ohmaly",
-  "name": "m-boilerplate",
-  "version": "0.1.1",
+  "name": "mbp",
+  "version": "0.1.0",
   "description": "A simple build management system for Mithril.",
   "license": "MIT",
-  "bugs": "https://github.com/nohros/m-boilerplate/issues",
-  "homepage": "http://nohros.com/m-boilerplate",
+  "bugs": "https://github.com/nohros/mbp/issues",
+  "homepage": "http://nohros.com/mbp",
   "repository": {
     "type": "git",
-    "url": "git@github.com:nohros/m-boilerplate.git"
+    "url": "git@github.com:nohros/mbp.git"
   },
   "devDependencies": {
-    "gulp": "^3.8.10",
-    "gulp-util": "^3.0.2",
-    "gulp-uglify": "~1.1.0",
-    "gulp-copy": "0.0.2",
-    "gulp-jshint": "^1.9.0",
-    "del": "^1.1.1",
-    "gulp-bump": "^0.1.11",
-    "gulp-if": "~1.2.5",
-    "moment": "^2.9.0",
-    "gulp-concat": "^2.5.0",
-    "gulp-header": "^1.2.2",
-    "gulp-tap": "^0.1.3",
-    "run-sequence": "~1.0.2"
+    "extract-text-webpack-plugin": "^2.1.0",
+    "html-webpack-plugin": "^2.28.0",
+    "webpack": "^2.5.1"
+  },
+  "dependencies": {
+    "mithril": "^1.1.1"
+  },
+  "scripts": {
+    "start": "webpack -d --watch",
+    "build": "webpack -p"
   }
 }

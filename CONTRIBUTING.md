@@ -1,4 +1,4 @@
-# Contributing to `m-boilerplate`
+# Contributing to `mbp`
 
 ## Getting Started
 

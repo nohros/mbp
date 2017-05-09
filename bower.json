@@ -1,7 +1,7 @@
 {
-  "name": "m-boilerplate",
-  "version": "0.1.1",
-  "homepage": "https://github.com/nohros/m-boilerplate",
+  "name": "mbp",
+  "version": "0.1.0",
+  "homepage": "https://github.com/nohros/mbp",
   "authors": [
     "Neylor Ohmaly"
   ],
@@ -13,7 +13,5 @@
     "node_modules",
     "vendor"
   ],
-  "devDependencies": {
-    "mithril": "~0.1.0"
-  }
+  "devDependencies": {}
 }
